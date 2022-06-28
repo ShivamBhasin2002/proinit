@@ -1,28 +1,37 @@
-import {Command, Flags} from '@oclif/core'
+import { Command } from "@oclif/core";
+import { prompt } from "enquirer";
+import prettier from "../controllers/packages/prettier";
+import tailwindcss from "../controllers/packages/tailwindcss";
+import createReactApp from "../controllers/projectControllers/react";
 
 export default class React extends Command {
-  static description = 'describe the command here'
-
-  static examples = [
-    '<%= config.bin %> <%= command.id %>',
-  ]
-
-  static flags = {
-    // flag with a value (-n, --name=VALUE)
-    name: Flags.string({char: 'n', description: 'name to print'}),
-    // flag with no value (-f, --force)
-    force: Flags.boolean({char: 'f'}),
-  }
-
-  static args = [{name: 'file'}]
-
-  public async run(): Promise<void> {
-    const {args, flags} = await this.parse(React)
-
-    const name = flags.name ?? 'world'
-    this.log(`hello ${name} from /data/projects/proinit/src/commands/react.ts`)
-    if (args.file && flags.force) {
-      this.log(`you input --force and --file: ${args.file}`)
-    }
+  static description = "describe the command here";
+  static args = [
+    {
+      name: "projectName",
+      description: "The name of the project to be created",
+      required: true,
+    },
+  ];
+  async run(): Promise<void> {
+    const { args } = await this.parse(React);
+    const { dependencies }: { dependencies: any } = await prompt({
+      name: "dependencies",
+      type: "multiselect",
+      message: "Select dependencies to be initialized:",
+      choices: ["Tailwind CSS", "Prettier"],
+    });
+    createReactApp(args.projectName);
+    for(let t of dependencies){
+      switch(t)
+      {
+        case "Tailwind CSS":
+          tailwindcss(args.projectName);
+          break;
+        case "Prettier":
+          prettier(args.projectName);
+          break;
+      }
+    };
   }
 }

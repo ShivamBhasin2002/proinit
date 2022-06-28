@@ -1,28 +1,24 @@
-import {Command, Flags} from '@oclif/core'
+import { Command } from "@oclif/core";
+import { prompt } from "enquirer";
+import createNextApp from "../controllers/projectControllers/next";
 
 export default class Next extends Command {
-  static description = 'describe the command here'
-
-  static examples = [
-    '<%= config.bin %> <%= command.id %>',
-  ]
-
-  static flags = {
-    // flag with a value (-n, --name=VALUE)
-    name: Flags.string({char: 'n', description: 'name to print'}),
-    // flag with no value (-f, --force)
-    force: Flags.boolean({char: 'f'}),
-  }
-
-  static args = [{name: 'file'}]
-
-  public async run(): Promise<void> {
-    const {args, flags} = await this.parse(Next)
-
-    const name = flags.name ?? 'world'
-    this.log(`hello ${name} from /data/projects/proinit/src/commands/next.ts`)
-    if (args.file && flags.force) {
-      this.log(`you input --force and --file: ${args.file}`)
-    }
+  static description = "describe the command here";
+  static args = [
+    {
+      name: "projectName",
+      description: "The name of the project to be created",
+      required: true,
+    },
+  ];
+  async run(): Promise<void> {
+    const { args } = await this.parse(Next);
+    const { dependencies }: { dependencies: ArrayBuffer } = await prompt({
+      name: "dependencies",
+      type: "multiselect",
+      message: "Select dependencies to be initialized:",
+      choices: ["Tailwind CSS", "Prettier"],
+    });
+    createNextApp(args.projectName);
   }
 }
